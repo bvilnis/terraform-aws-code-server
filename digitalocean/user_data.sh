@@ -10,6 +10,7 @@ mount_home_drive() {
 
 update_system() {
   apt update
+  apt full-upgrade
   apt install -y jq
 }
 
@@ -60,7 +61,7 @@ systemctl enable code-server.service
 }
 
 code_server_scripts() {
-cat <<EOF > "/usr/local/bin/code-server-init.sh"
+cat <<EOF > "/usr/local/bin/code-server-init"
 #!/bin/bash
 
 set -e
@@ -107,7 +108,7 @@ check_for_password
 exit 0
 EOF
 
-cat <<EOF > "/usr/local/bin/code-server-upgrade.sh"
+cat <<EOF > "/usr/local/bin/code-server-upgrade"
 #!/bin/bash
 
 set -e
@@ -135,10 +136,8 @@ upgrade_code_server
 exit 0
 EOF
 
-chmod 0755 /usr/local/bin/code-server-init.sh
-chmod 0755 /usr/local/bin/code-server-upgrade.sh
-echo 'alias code-server-init="sudo code-server-init.sh"' >> /home/coder/.bashrc
-echo 'alias code-server-upgrade="sudo code-server-upgrade.sh"' >> /home/coder/.bashrc
+chmod 0755 /usr/local/bin/code-server-init
+chmod 0755 /usr/local/bin/code-server-upgrade
 }
 
 ## Exectution ##
