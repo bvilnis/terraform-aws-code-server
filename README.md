@@ -6,28 +6,22 @@ You can now fire up your own remote Linux box and run [VScode](https://github.co
 ![](https://d33wubrfki0l68.cloudfront.net/523f0c3da72d677f7cc0031bc3b85f8e83a36ea7/ec829/assets/img/vscode-pomerium.72601c46.png)
 
 ## Requirements:
-### 1. [Docker](https://docs.docker.com/install/)  (No local tools needed)
+### 1. [Terraform](https://terraform.io/)
 
 ## How-To:
-**1.** Depending on which cloud platform you want to use (currently only Digital Ocean is supported), assign your chosen parameters in `terraform.tfvars`. Instructions for these parameters can be found in the respective directories.
+**1.** Depending on which cloud platform you want to use, assign your chosen parameters in `terraform.tfvars`. Instructions for these parameters can be found in the respective directories.
 
-**2.** Run the make command for your chosen platform.
+**2.** Run `terraform init` and `terraform apply` from the platform directory of your choice.
 
-Digital Ocean = `make digitalocean`
+**3.** Upon successful creation, you will receive an output with an IP address or DNS endpoint of the workstation and instructions on how to SSH into it. The default user password is `coder` and you will be prompted to set a new user password upon first SSH login.
 
-AWS (coming soon)
+**4.** After you have set your user password, SSH back in and run `sudo code-server-init` to enable Code Server and set a password for the web interface (make it different to your Linux user password).
 
-GCP (coming soon)
+  *(You can re-run `sudo code-server-init` to change your password)*
 
-**3.** Upon successful creation, you will receive an output with the IP address of the workstation and instructions on how to SSH into it. The default user password is `coder` and you will be prompted to set a new user password upon first SSH login.
+**5.** Navigate to the previously outputted IP/DNS in your browser and enjoy your new Linux workstation!
 
-**4.** After you have set your user password, SSH back in and run `code-server-init` to enable Code Server and set a password for the web interface (make it different to your Linux user password).
-
-  *(You can re-run `code-server-init` to change your password)*
-
-**5.** Navigate to the previously outputted IP address in your browser and enjoy your new Linux workstation!
-
-**6.** To upgrade Code Server, simply SSH in run `code-server-upgrade`.
+**6.** To upgrade Code Server, simply SSH in and run `sudo code-server-upgrade`.
 
 *(Do not run upgrade from the Code Server built-in terminal as you'd be running it from the service you are modifying).*
 
@@ -55,14 +49,12 @@ Each cloud platform will follow the same design pattern, that being:
 
 **6.** In the case of a corrupted VPS, or if you want a fresh box, destroy the VPS manually via your chosen platform's console and simply run the automation again. It will reinstate a fresh instance, mount the `/home` drive, and slot it back into the existing infrastructure.
 
-**7.** To destroy all infrastructure, run the same make command but append `-destroy`.
-
-*eg. `make digitalocean-destroy`*
+**7.** To destroy all infrastructure, run `terraform destroy` from the platform's directory.
 
 ## Future Features:
 The current ideas for future iterations are:
 
-**1.** Implement more platforms. Probably AWS and then GCP to start with.
+**1.** Implement more platforms. Possibly GCP next.
 
 **2.** Add automation for installing dev tools (possibly Ansible).
 

@@ -10,12 +10,11 @@ mount_home_drive() {
 
 update_system() {
   apt update
-  apt full-upgrade
   apt install -y jq
 }
 
 download_code_server() {
-  RELEASE=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux\")) | .browser_download_url")
+  RELEASE=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86\")) | .browser_download_url")
   TARBALL=$(echo "$RELEASE" | awk -F'/' '{print $9}')
 
   wget "$RELEASE"
@@ -45,13 +44,11 @@ cat <<EOF > "/etc/systemd/system/code-server.service"
 [Unit]
 Description=Visual Studio Code on the server
 After=network.target
-
 [Service]
 ExecStart=/usr/local/bin/code-server --user-data-dir /home/coder/code-server
 Restart=on-failure
 RestartSec=5
 User=coder
-
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -115,8 +112,8 @@ set -e
 
 ## Functions ##
 upgrade_code_server() {
-  RELEASE=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux\")) | .browser_download_url")
-  TARBALL=$(echo "$RELEASE" | awk -F'/' '{print $9}')
+  RELEASE=\$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86\")) | .browser_download_url")
+  TARBALL=\$(echo "\$RELEASE" | awk -F'/' '{print \$9}')
 
   wget "\$RELEASE"
   mkdir code-server-upgrade

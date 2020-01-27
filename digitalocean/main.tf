@@ -61,20 +61,20 @@ resource "digitalocean_firewall" "linux-cloudstation" {
   droplet_ids = ["${digitalocean_droplet.linux-cloudstation.id}"]
 
   inbound_rule {
-      protocol           = "tcp"
-      port_range         = "22"
-      source_addresses   = ["0.0.0.0/0", "::/0"]
+      protocol                  = "tcp"
+      port_range                = "22"
+      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   inbound_rule {
-      protocol           = "tcp"
-      port_range         = "8080"
-      source_addresses   = ["0.0.0.0/0", "::/0"]
+      protocol                  = "tcp"
+      port_range                = "8080"
+      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   inbound_rule {
-      protocol           = "icmp"
-      source_addresses   = ["0.0.0.0/0", "::/0"]
+      protocol                  = "icmp"
+      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   outbound_rule {
