@@ -1,7 +1,7 @@
 # Digital Ocean
 This is a quick guide to outline the Digital Ocean parameters in [terraform.tvfars](terraform.tfvars).
 
-Terraform will also prompt for your [Digital Ocean API token](https://www.digitalocean.com/docs/api/create-personal-access-token/) during creation to authenticate.
+Terraform will also prompt for your [Digital Ocean API token](https://www.digitalocean.com/docs/api/create-personal-access-token/) (`var.do_token`) during creation to authenticate.
 
 ## Variables
 **region:** The Digital Ocean data center region. Options include:

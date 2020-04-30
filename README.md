@@ -54,7 +54,7 @@ Each cloud platform will follow the same design pattern, that being:
 ## Future Features:
 The current ideas for future iterations are:
 
-**1.** Implement more platforms. Possibly GCP next.
+**1.** Implement more platforms. Possibly AWS next.
 
 **2.** Add automation for installing dev tools (possibly Ansible).
 

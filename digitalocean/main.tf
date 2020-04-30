@@ -1,14 +1,26 @@
+## Provider ##
+provider "digitalocean" {
+  token = var.do_token
+}
+
+## VPC ##
+resource "digitalocean_vpc" "linux-cloudstation" {
+  name   = "${var.name}-vpc"
+  region = var.region
+}
+
 ## Droplet ##
 resource "digitalocean_droplet" "linux-cloudstation" {
-  image  = "ubuntu-18-04-x64"
-  name   = var.name
-  region = var.region
-  size   = var.droplet_size
-  backups = true
-  monitoring = true
+  image              = "ubuntu-20-04-x64"
+  name               = var.name
+  region             = var.region
+  size               = var.droplet_size
+  backups            = true
+  monitoring         = true
   private_networking = "true"
-  user_data = file("user_data.sh")
-  ssh_keys = [var.ssh_key_id]
+  user_data          = file("user_data.sh")
+  ssh_keys           = [var.ssh_key_id]
+  vpc_uuid           = digitalocean_vpc.linux-cloudstation.id
 }
 
 ## Volume ##
@@ -27,22 +39,23 @@ resource "digitalocean_volume_attachment" "linux-cloudstation" {
 
 ## Loadbalancer ##
 resource "digitalocean_loadbalancer" "linux-cloudstation" {
-  name = "${var.name}-loadbalancer"
-  region = var.region
+  name     = "${var.name}-loadbalancer"
+  region   = var.region
+  vpc_uuid = digitalocean_vpc.linux-cloudstation.id
 
   forwarding_rule {
-    entry_port = 22
+    entry_port     = 22
     entry_protocol = "tcp"
 
-    target_port = 22
+    target_port     = 22
     target_protocol = "tcp"
   }
 
   forwarding_rule {
-    entry_port = 80
+    entry_port     = 80
     entry_protocol = "http"
 
-    target_port = 8080
+    target_port     = 8080
     target_protocol = "http"
   }
 
@@ -61,41 +74,41 @@ resource "digitalocean_firewall" "linux-cloudstation" {
   droplet_ids = ["${digitalocean_droplet.linux-cloudstation.id}"]
 
   inbound_rule {
-      protocol                  = "tcp"
-      port_range                = "22"
-      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    protocol                  = "tcp"
+    port_range                = "22"
+    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   inbound_rule {
-      protocol                  = "tcp"
-      port_range                = "8080"
-      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    protocol                  = "tcp"
+    port_range                = "8080"
+    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   inbound_rule {
-      protocol                  = "icmp"
-      source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    protocol                  = "icmp"
+    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
   }
 
   outbound_rule {
-      protocol                = "tcp"
-      port_range              = "1-65535"
-      destination_addresses   = ["0.0.0.0/0", "::/0"]
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 
   outbound_rule {
-      protocol                = "udp"
-      port_range              = "1-65535"
-      destination_addresses   = ["0.0.0.0/0", "::/0"]
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 }
 
 ## Project ##
 resource "digitalocean_project" "linux-cloudstation" {
-  name        = var.name
-  resources   = [
+  name = var.name
+  resources = [
     "do:droplet:${digitalocean_droplet.linux-cloudstation.id}",
     "do:volume:${digitalocean_volume.linux-cloudstation.id}",
     "do:loadbalancer:${digitalocean_loadbalancer.linux-cloudstation.id}",
-    ]
+  ]
 }
