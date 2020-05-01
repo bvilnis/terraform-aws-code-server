@@ -21,7 +21,7 @@ You can now fire up your own remote Linux box and run [VScode](https://github.co
 
 **5.** Navigate to the previously outputted IP/DNS in your browser and enjoy your new Linux workstation!
 
-**6.** To upgrade Code Server, simply SSH in and run `sudo code-server-upgrade`.
+**6.** As of version 3, Code Server automatically updates itself by default. To manually upgrade Code Server, simply SSH in and run `sudo code-server-upgrade`.
 
 *(Do not run upgrade from the Code Server built-in terminal as you'd be running it from the service you are modifying).*
 
