@@ -1,11 +1,11 @@
 ## Droplet region ##
-region = "sgp1"
+region = "sfo2"
 
 ## Droplet size ##
-droplet_size = "s-4vcpu-8gb"
+droplet_size = "s-2vcpu-2gb"
 
 ## Mounted /home drive size ##
-storage_size = 80
+storage_size = 50
 
 ## SSH key ID ##
 ssh_key_id = 12345678

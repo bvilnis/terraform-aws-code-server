@@ -14,14 +14,14 @@ update_system() {
 }
 
 download_code_server() {
-  RELEASE=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86\")) | .browser_download_url")
+  RELEASE=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86_64\")) | .browser_download_url")
   TARBALL=$(echo "$RELEASE" | awk -F'/' '{print $9}')
 
   wget "$RELEASE"
-  mkdir code-server-tarball
-  tar -xzf "$TARBALL" -C code-server-tarball --strip-components=1
-  cp code-server-tarball/code-server /usr/local/bin
-  rm -r "$TARBALL" code-server-tarball
+  mkdir /usr/local/lib/code-server
+  tar -xzf "$TARBALL" -C /usr/local/lib/code-server --strip-components=1
+  ln -s /usr/local/lib/code-server/code-server /usr/local/bin/code-server
+  rm "$TARBALL"
 }
 
 add_user() {
@@ -45,7 +45,7 @@ cat <<EOF > "/etc/systemd/system/code-server.service"
 Description=Visual Studio Code on the server
 After=network.target
 [Service]
-ExecStart=/usr/local/bin/code-server --user-data-dir /home/coder/code-server
+ExecStart=/usr/local/bin/code-server --user-data-dir /home/coder/code-server --host 0.0.0.0
 Restart=on-failure
 RestartSec=5
 User=coder
@@ -78,6 +78,8 @@ set_password() {
 
   systemctl daemon-reload
   systemctl restart code-server.service
+
+  echo "Code server is now initialized!"
 }
 
 change_password() {
@@ -112,15 +114,14 @@ set -e
 
 ## Functions ##
 upgrade_code_server() {
-  RELEASE=\$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86\")) | .browser_download_url")
+  RELEASE=\$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest | jq -r ".assets[] | select(.name | test(\"linux-x86_64\")) | .browser_download_url")
   TARBALL=\$(echo "\$RELEASE" | awk -F'/' '{print \$9}')
 
   wget "\$RELEASE"
-  mkdir code-server-upgrade
-  tar -xzf "\$TARBALL" -C code-server-upgrade --strip-components=1
+  tar -xzf "\$TARBALL" -C /usr/local/lib/code-server --strip-components=1
   rm /usr/local/bin/code-server
-  cp code-server-upgrade/code-server /usr/local/bin
-  rm -r "\$TARBALL" code-server-upgrade
+  ln -s /usr/local/lib/code-server/code-server /usr/local/bin/code-server
+  rm "\$TARBALL"
 
   systemctl restart code-server.service
 
