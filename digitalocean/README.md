@@ -1,9 +1,14 @@
 # Digital Ocean
-This is a quick guide to outline the Digital Ocean parameters in [terraform.tvfars](terraform.tfvars).
+You will need to export your [Digital Ocean API token](https://www.digitalocean.com/docs/api/create-personal-access-token/) as `DIGITALOCEAN_TOKEN` to authenticate Terraform.
 
-Terraform will also prompt for your [Digital Ocean API token](https://www.digitalocean.com/docs/api/create-personal-access-token/) (`var.do_token`) during creation to authenticate.
+By default, this stack builds a [load balancer](https://www.digitalocean.com/docs/networking/load-balancers/) which accepts and passes HTTP traffic through to the Code Server port `:8080` on the droplet. For optimal security, I recommend using a TLS-certified domain and forcing HTTPS on the load balancer. An easy managed way to achieve this on Digital Ocean can be found [here](https://www.digitalocean.com/docs/networking/load-balancers/how-to/ssl-termination/).
 
-## Variables
+## Digital Ocean parameters in [terraform.tvfars](terraform.tfvars):
+
+**hostname:** The Linux hostname. *(This will also be used to name a few other Digital Ocean resources like load balancer, firewall, project etc.)*
+
+**username:** The Linux username.
+
 **region:** The Digital Ocean data center region. Options include:
 
     nyc1, nyc2, nyc3: New York City, United States
@@ -34,7 +39,7 @@ Terraform will also prompt for your [Digital Ocean API token](https://www.digita
     s-24vcpu-128gb
     s-32vcpu-192gb
 
-**storage_size:** The size of the persistent disk that will be mounted to `/home`.
+**storage_size:** The size *(in GB)* of the persistent disk that will be mounted to `/home`.
 
 **ssh_key_id:** Your [Digital Ocean SSH key ID](https://developers.digitalocean.com/documentation/v2/#list-all-keys). These are 8-digit numbers that map to SSH keys linked on your Digital Ocean account and are required to authenticate connections to the droplet.
 
@@ -64,4 +69,4 @@ The response body will look like this. Grab the 8-digit ID number.
 }
 ```
 
-If you have not added your SSH key to your Digital Ocean account, instructions to do so can be [found here](https://www.digitalocean.com/docs/droplets/how-to/add-ssh-keys/to-account/).
+If you have not added your SSH key to your Digital Ocean account, instructions to do so can be found [here](https://www.digitalocean.com/docs/droplets/how-to/add-ssh-keys/to-account/).

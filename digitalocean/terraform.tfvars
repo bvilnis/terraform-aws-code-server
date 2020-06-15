@@ -10,7 +10,7 @@ region = "sfo2"
 # Droplet size
 droplet_size = "s-2vcpu-2gb"
 
-# Home drive size
+# /home drive size
 storage_size = 20
 
 # SSH key ID
