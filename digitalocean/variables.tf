@@ -1,10 +1,9 @@
-variable "do_token" {
+variable "hostname" {
   type = string
 }
 
-variable "name" {
-  type    = string
-  default = "linux-cloudstation"
+variable "username" {
+  type = string
 }
 
 variable "region" {

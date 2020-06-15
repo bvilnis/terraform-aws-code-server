@@ -1,47 +1,64 @@
-## Provider ##
-provider "digitalocean" {
-  token = var.do_token
+# Passwords
+resource "random_password" "user" {
+  length           = 16
+  special          = false
 }
 
-## VPC ##
-resource "digitalocean_vpc" "linux-cloudstation" {
-  name   = "${var.name}-vpc"
+resource "random_password" "code-server" {
+  length           = 16
+  special          = false
+}
+
+# VPC
+resource "digitalocean_vpc" "vpc" {
+  name   = "${var.hostname}-vpc"
   region = var.region
 }
 
-## Droplet ##
-resource "digitalocean_droplet" "linux-cloudstation" {
+# User data
+data "template_file" "init" {
+  template = "${file("user_data.tpl")}"
+  vars = {
+    HOSTNAME  = "${var.hostname}",
+    USERNAME  = "${var.username}",
+    USERPASS  = "${random_password.user.result}",
+    CODERPASS = "${random_password.code-server.result}"
+  }
+}
+
+# Droplet
+resource "digitalocean_droplet" "droplet" {
   image              = "ubuntu-20-04-x64"
-  name               = var.name
+  name               = var.hostname
   region             = var.region
   size               = var.droplet_size
   backups            = true
   monitoring         = true
   private_networking = "true"
-  user_data          = file("user_data.sh")
   ssh_keys           = [var.ssh_key_id]
-  vpc_uuid           = digitalocean_vpc.linux-cloudstation.id
+  vpc_uuid           = digitalocean_vpc.vpc.id
+  user_data          = data.template_file.init.rendered
 }
 
-## Volume ##
-resource "digitalocean_volume" "linux-cloudstation" {
-  name                    = "${var.name}-home"
+# Volume
+resource "digitalocean_volume" "disk" {
+  name                    = "${var.hostname}-home"
   region                  = var.region
   size                    = var.storage_size
   initial_filesystem_type = "ext4"
-  description             = "persistent storage for /home on linux-cloudstation"
+  description             = "persistent storage for /home on ${var.hostname}"
 }
 
-resource "digitalocean_volume_attachment" "linux-cloudstation" {
-  droplet_id = digitalocean_droplet.linux-cloudstation.id
-  volume_id  = digitalocean_volume.linux-cloudstation.id
+resource "digitalocean_volume_attachment" "disk-attachment" {
+  droplet_id = digitalocean_droplet.droplet.id
+  volume_id  = digitalocean_volume.disk.id
 }
 
-## Loadbalancer ##
-resource "digitalocean_loadbalancer" "linux-cloudstation" {
-  name     = "${var.name}-loadbalancer"
+# Loadbalancer
+resource "digitalocean_loadbalancer" "lb" {
+  name     = "${var.hostname}-loadbalancer"
   region   = var.region
-  vpc_uuid = digitalocean_vpc.linux-cloudstation.id
+  vpc_uuid = digitalocean_vpc.vpc.id
 
   forwarding_rule {
     entry_port     = 22
@@ -64,30 +81,30 @@ resource "digitalocean_loadbalancer" "linux-cloudstation" {
     protocol = "tcp"
   }
 
-  droplet_ids = ["${digitalocean_droplet.linux-cloudstation.id}"]
+  droplet_ids = ["${digitalocean_droplet.droplet.id}"]
 }
 
-## Firewall ##
-resource "digitalocean_firewall" "linux-cloudstation" {
-  name = "${var.name}-firewall"
+# Firewall
+resource "digitalocean_firewall" "firewall" {
+  name = "${var.hostname}-firewall"
 
-  droplet_ids = ["${digitalocean_droplet.linux-cloudstation.id}"]
+  droplet_ids = ["${digitalocean_droplet.droplet.id}"]
 
   inbound_rule {
     protocol                  = "tcp"
     port_range                = "22"
-    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
   }
 
   inbound_rule {
     protocol                  = "tcp"
     port_range                = "8080"
-    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
   }
 
   inbound_rule {
     protocol                  = "icmp"
-    source_load_balancer_uids = [digitalocean_loadbalancer.linux-cloudstation.id]
+    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
   }
 
   outbound_rule {
@@ -103,12 +120,12 @@ resource "digitalocean_firewall" "linux-cloudstation" {
   }
 }
 
-## Project ##
-resource "digitalocean_project" "linux-cloudstation" {
-  name = var.name
+# Project
+resource "digitalocean_project" "project" {
+  name = var.hostname
   resources = [
-    "do:droplet:${digitalocean_droplet.linux-cloudstation.id}",
-    "do:volume:${digitalocean_volume.linux-cloudstation.id}",
-    "do:loadbalancer:${digitalocean_loadbalancer.linux-cloudstation.id}",
+    "do:droplet:${digitalocean_droplet.droplet.id}",
+    "do:volume:${digitalocean_volume.disk.id}",
+    "do:loadbalancer:${digitalocean_loadbalancer.lb.id}"
   ]
 }
