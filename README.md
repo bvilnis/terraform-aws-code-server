@@ -32,10 +32,12 @@ Each cloud platform will follow the same design pattern, that being:
 
 **3.** Download and install the latest Code Server release via native package manager.
 
+**4.** Import user's SSH keys from their GitHub account for easy SSH access.
+
 ## Future Features:
 The current ideas for future iterations are:
 
-**1.** Implement more platforms. Possibly AWS next.
+**1.** Implement more platforms. GCP and Azure.
 
 **2.** Add automation for installing dev tools (possibly Ansible).
 

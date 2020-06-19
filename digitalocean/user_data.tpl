@@ -12,7 +12,7 @@ mount_home_drive() {
 update_system() {
   apt update
   apt -y dist-upgrade
-  apt install -y jq systemd-container
+  apt install -y jq systemd-container nginx
   apt -y autoclean
   apt -y autoremove
 }
@@ -20,7 +20,8 @@ update_system() {
 add_user() {
   useradd -m -G sudo -s /bin/bash ${USERNAME}
   echo -e "${USERPASS}\n${USERPASS}" | passwd ${USERNAME}
-  cp -r /root/.ssh /home/${USERNAME} && \
+  mkdir /home/${USERNAME}/.ssh && \
+  curl https://github.com/${GITHUB_USER}.keys >> /home/${USERNAME}/.ssh/authorized_keys && \
   chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh
 }
 
@@ -50,6 +51,23 @@ enable_code_server() {
   machinectl shell --uid=${USERNAME} .host /usr/bin/systemctl --user enable --now code-server.service
 }
 
+nginx_config() {
+  unlink /etc/nginx/sites-enabled/default
+  cat <<EOF > "/etc/nginx/sites-available/reverse-proxy.conf"
+server {
+  listen 80;
+  listen [::]:80;
+    location / {
+       proxy_pass http://localhost:8080/;
+       proxy_set_header Upgrade \$http_upgrade;
+       proxy_set_header Connection upgrade;
+    }
+}
+EOF
+  ln -s /etc/nginx/sites-available/reverse-proxy.conf /etc/nginx/sites-enabled/reverse-proxy.conf
+  systemctl restart nginx.service
+}
+
 main () {
   mount_home_drive
 
@@ -62,6 +80,8 @@ main () {
   code_server_config
 
   enable_code_server
+
+  nginx_config
 }
 
 # Exectution
