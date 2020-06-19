@@ -18,6 +18,6 @@ variable "storage_size" {
   type = number
 }
 
-variable "ssh_key_id" {
-  type = number
+variable "github_username" {
+  type = string
 }

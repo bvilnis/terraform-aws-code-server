@@ -22,7 +22,8 @@ data "template_file" "init" {
     HOSTNAME  = "${var.hostname}",
     USERNAME  = "${var.username}",
     USERPASS  = "${random_password.user.result}",
-    CODERPASS = "${random_password.code-server.result}"
+    CODERPASS = "${random_password.code-server.result}",
+    GITHUB_USER = "${var.github_username}"
   }
 }
 
@@ -35,7 +36,6 @@ resource "digitalocean_droplet" "droplet" {
   backups            = true
   monitoring         = true
   private_networking = "true"
-  ssh_keys           = [var.ssh_key_id]
   vpc_uuid           = digitalocean_vpc.vpc.id
   user_data          = data.template_file.init.rendered
 }
@@ -54,36 +54,6 @@ resource "digitalocean_volume_attachment" "disk-attachment" {
   volume_id  = digitalocean_volume.disk.id
 }
 
-# Loadbalancer
-resource "digitalocean_loadbalancer" "lb" {
-  name     = "${var.hostname}-loadbalancer"
-  region   = var.region
-  vpc_uuid = digitalocean_vpc.vpc.id
-
-  forwarding_rule {
-    entry_port     = 22
-    entry_protocol = "tcp"
-
-    target_port     = 22
-    target_protocol = "tcp"
-  }
-
-  forwarding_rule {
-    entry_port     = 80
-    entry_protocol = "http"
-
-    target_port     = 8080
-    target_protocol = "http"
-  }
-
-  healthcheck {
-    port     = 22
-    protocol = "tcp"
-  }
-
-  droplet_ids = ["${digitalocean_droplet.droplet.id}"]
-}
-
 # Firewall
 resource "digitalocean_firewall" "firewall" {
   name = "${var.hostname}-firewall"
@@ -93,18 +63,18 @@ resource "digitalocean_firewall" "firewall" {
   inbound_rule {
     protocol                  = "tcp"
     port_range                = "22"
-    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
+    source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
   inbound_rule {
     protocol                  = "tcp"
-    port_range                = "8080"
-    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
+    port_range                = "80"
+    source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
   inbound_rule {
     protocol                  = "icmp"
-    source_load_balancer_uids = [digitalocean_loadbalancer.lb.id]
+    source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
   outbound_rule {
@@ -125,7 +95,6 @@ resource "digitalocean_project" "project" {
   name = var.hostname
   resources = [
     "do:droplet:${digitalocean_droplet.droplet.id}",
-    "do:volume:${digitalocean_volume.disk.id}",
-    "do:loadbalancer:${digitalocean_loadbalancer.lb.id}"
+    "do:volume:${digitalocean_volume.disk.id}"
   ]
 }

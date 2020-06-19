@@ -1,5 +1,5 @@
 output "ip_address" {
-  value = digitalocean_loadbalancer.lb.ip
+  value = digitalocean_droplet.droplet.ipv4_address
 }
 
 output "sudo_password" {
