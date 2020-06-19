@@ -3,7 +3,7 @@ You will need to export your [IAM User Access Keys](https://docs.aws.amazon.com/
 
 By default, this stack builds an EC2 with an NGINX reverse proxy which accepts and passes HTTP traffic through to the Code Server port `:8080` on the instance. For optimal security, I recommend using a TLS-certified domain against the instance public IP. This can be easily added into the existing NGINX webserver with the [following guide](https://www.scaleway.com/en/docs/how-to-configure-nginx-reverse-proxy/#-Adding-TLS-to-your-Nginx-Reverse-Proxy-using-Lets-Encrypt).
 
-_**FYI:** AWS user data can take a few minutes to execute sometimes. If the Code Server endpoint initially returns a 503 or 404, this just means the user data hasn't finished executing yet._
+_**FYI:** AWS user data can take a few minutes to execute sometimes. If the Code Server endpoint initially returns a 503, 404 or you are unable to SSH in, this just means the user data hasn't finished executing yet._
 
 ## AWS parameters in [terraform.tvfars](terraform.tfvars):
 

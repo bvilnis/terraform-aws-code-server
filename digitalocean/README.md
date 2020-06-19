@@ -3,7 +3,7 @@ You will need to export your [Digital Ocean API token](https://www.digitalocean.
 
 By default, this stack builds a Droplet with an NGINX reverse proxy which accepts and passes HTTP traffic through to the Code Server port `:8080` on the instance. For optimal security, I recommend using a TLS-certified domain against the instance public IP. This can be easily added into the existing NGINX webserver with the [following guide](https://www.scaleway.com/en/docs/how-to-configure-nginx-reverse-proxy/#-Adding-TLS-to-your-Nginx-Reverse-Proxy-using-Lets-Encrypt).
 
-_**FYI:** Digital Ocean user data can take a few minutes to execute sometimes. If the Code Server endpoint initially returns a 503 or you are unable to SSH in, this just means the user data hasn't finished executing yet._
+_**FYI:** Digital Ocean user data can take a few minutes to execute sometimes. If the Code Server endpoint initially returns a 503, 404 or you are unable to SSH in, this just means the user data hasn't finished executing yet._
 
 ## Digital Ocean parameters in [terraform.tvfars](terraform.tfvars):
 
