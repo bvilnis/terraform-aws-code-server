@@ -1,61 +1,65 @@
-variable "region" {
-  type        = string
-  description = "AWS regional endpoint."
-}
-
-variable "hostname" {
-  type        = string
-  description = "Linux hostname."
-}
-
-variable "username" {
-  type        = string
-  description = "Linux username."
-}
-
-variable "instance_size" {
-  type        = string
-  description = "EC2 instance size."
-}
-
-variable "storage_size" {
-  type        = number
-  description = "Immutable EBS storage size for /home."
-}
-
-variable "route53_zone_id" {
-  type        = string
-  description = "Route53 hosted zone ID for DNS entries."
-}
-
 variable "domain_name" {
   type        = string
-  description = "Domain name value to register in hosted zone. Eg. 'ide.mydomain.com'"
-}
-
-variable "github_username" {
-  type        = string
-  description = "GitHub username for importing SSH keys onto the instance."
+  description = "A record value for supplied hosted zone (eg. 'mydomain.com' or 'subdomain.mydomain.com')"
 }
 
 variable "email_address" {
   type        = string
-  description = "Email address for locking down OAuth to prevent it from being organization/account-wide."
+  description = "If set, OAuth2 Proxy will only authenticate supplied email address rather than entire org/account of the Oauth2 provider"
   default     = ""
 }
 
-variable "oauth_provider" {
+variable "github_username" {
   type        = string
-  description = "OAuth2 Proxy provider."
-  default     = "google"
+  description = "GitHub username for importing public SSH keys associated to the GitHub account"
 }
 
-variable "oauth_client_id" {
+variable "hostname" {
   type        = string
-  description = "OAuth client ID for chosen OAuth provider."
+  description = "Hostname for the EC2 instance"
+  default     = "code-server"
 }
 
-variable "oauth_client_secret" {
+variable "instance_size" {
   type        = string
-  description = "OAuth client secret for chosen OAuth provider."
+  description = "EC2 instance size"
+  default     = "t3.small"
+}
+
+variable "oauth2_client_id" {
+  type        = string
+  description = "OAuth2 client ID key for chosen OAuth2 provider"
+}
+
+variable "oauth2_client_secret" {
+  type        = string
+  description = "OAuth2 client secret key for chosen OAuth2 provider"
+}
+
+variable "oauth2_provider" {
+  type        = string
+  description = "OAuth2 provider"
+}
+
+variable "region" {
+  type        = string
+  description = "AWS regional endpoint"
+  default     = "us-east-1"
+}
+
+variable "route53_zone_id" {
+  type        = string
+  description = "Route53 hosted zone ID for `domain_name`"
+}
+
+variable "storage_size" {
+  type        = number
+  description = "Size (in GB) for immutable EBS volume mounted to `/home`"
+  default     = 20
+}
+
+variable "username" {
+  type        = string
+  description = "Username for the non-root user on the EC2 instance"
+  default     = "coder"
 }
