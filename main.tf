@@ -16,7 +16,8 @@ resource "random_password" "user" {
   special = false
 }
 
-resource "random_password" "code-server" {
+# Cookie string
+resource "random_password" "cookie" {
   length  = 16
   special = false
 }
@@ -25,11 +26,10 @@ resource "random_password" "code-server" {
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  cidr                 = "10.0.0.0/16"
-  azs                  = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  public_subnets       = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  enable_dns_hostnames = true
-  tags                 = local.tags
+  cidr           = "10.0.0.0/16"
+  azs            = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  public_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  tags           = local.tags
 }
 
 # Security group
@@ -39,7 +39,7 @@ module "security_group" {
   name                = var.hostname
   vpc_id              = module.vpc.vpc_id
   ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["http-80-tcp", "ssh-tcp", "all-icmp"]
+  ingress_rules       = ["http-80-tcp", "https-443-tcp", "ssh-tcp", "all-icmp"]
   egress_rules        = ["all-all"]
   tags                = local.tags
 }
@@ -62,13 +62,18 @@ data "aws_ami" "ubuntu" {
 }
 
 data "template_file" "user_data" {
-  template = file("user_data.tpl")
+  template = file("${path.module}/user_data.tpl")
   vars = {
-    HOSTNAME    = "${var.hostname}",
-    USERNAME    = "${var.username}",
-    USERPASS    = "${random_password.user.result}",
-    CODERPASS   = "${random_password.code-server.result}",
-    GITHUB_USER = "${var.github_username}"
+    HOSTNAME             = "${var.hostname}",
+    USERNAME             = "${var.username}",
+    USERPASS             = "${random_password.user.result}",
+    GITHUB_USER          = "${var.github_username}",
+    DOMAIN               = "${var.domain_name}",
+    OAUTH2_CLIENT_ID     = "${var.oauth2_client_id}",
+    OAUTH2_CLIENT_SECRET = "${var.oauth2_client_secret}",
+    OAUTH2_PROVIDER      = "${var.oauth2_provider}",
+    EMAIL                = "${var.email_address}",
+    COOKIE               = base64encode("${random_password.cookie.result}")
   }
 }
 
@@ -87,7 +92,7 @@ module "ec2_instance" {
     {
       volume_type = "gp2"
       volume_size = 10
-    },
+    }
   ]
 
   ebs_block_device = [
@@ -100,4 +105,18 @@ module "ec2_instance" {
   ]
 
   tags = local.tags
+}
+
+resource "aws_eip" "ip" {
+  instance = module.ec2_instance.id[0]
+  vpc      = true
+}
+
+# Domain
+resource "aws_route53_record" "entry" {
+  zone_id = var.route53_zone_id
+  name    = var.domain_name
+  type    = "A"
+  ttl     = "3600"
+  records = [aws_eip.ip.public_ip]
 }
