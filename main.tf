@@ -26,11 +26,10 @@ resource "random_password" "cookie" {
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
 
-  cidr                 = "10.0.0.0/16"
-  azs                  = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  public_subnets       = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  enable_dns_hostnames = true
-  tags                 = local.tags
+  cidr           = "10.0.0.0/16"
+  azs            = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  public_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  tags           = local.tags
 }
 
 # Security group
@@ -65,16 +64,16 @@ data "aws_ami" "ubuntu" {
 data "template_file" "user_data" {
   template = file("user_data.tpl")
   vars = {
-    HOSTNAME       = "${var.hostname}",
-    USERNAME       = "${var.username}",
-    USERPASS       = "${random_password.user.result}",
-    GITHUB_USER    = "${var.github_username}",
-    DOMAIN         = "${var.domain_name}",
-    CLIENT_ID      = "${var.oauth_client_id}",
-    CLIENT_SECRET  = "${var.oauth_client_secret}",
-    OAUTH_PROVIDER = "${var.oauth_provider}",
-    EMAIL          = "${var.email_address}",
-    COOKIE         = base64encode("${random_password.cookie.result}")
+    HOSTNAME             = "${var.hostname}",
+    USERNAME             = "${var.username}",
+    USERPASS             = "${random_password.user.result}",
+    GITHUB_USER          = "${var.github_username}",
+    DOMAIN               = "${var.domain_name}",
+    OAUTH2_CLIENT_ID     = "${var.oauth2_client_id}",
+    OAUTH2_CLIENT_SECRET = "${var.oauth2_client_secret}",
+    OAUTH2_PROVIDER      = "${var.oauth2_provider}",
+    EMAIL                = "${var.email_address}",
+    COOKIE               = base64encode("${random_password.cookie.result}")
   }
 }
 
@@ -93,7 +92,7 @@ module "ec2_instance" {
     {
       volume_type = "gp2"
       volume_size = 10
-    },
+    }
   ]
 
   ebs_block_device = [
