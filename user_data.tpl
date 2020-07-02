@@ -17,9 +17,10 @@ mount_home_drive() {
 add_user() {
   useradd -m -G sudo -s /bin/bash ${USERNAME}
   echo -e "${USERPASS}\n${USERPASS}" | passwd ${USERNAME}
+  echo ${USERPASS} > /home/${USERNAME}/sudo.txt
   mkdir /home/${USERNAME}/.ssh && \
-  curl https://github.com/${GITHUB_USER}.keys >> /home/${USERNAME}/.ssh/authorized_keys && \
-  chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.ssh
+  curl https://github.com/${GITHUB_USER}.keys >> /home/${USERNAME}/.ssh/authorized_keys
+  chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/
 }
 
 update_system() {
@@ -80,7 +81,7 @@ oauth2_proxy_config() {
 
   cat <<EOF > "/etc/oauth2_proxy/oauth2_proxy.cfg"
 ## OAuth provider
-provider = "${OAUTH_PROVIDER}"
+provider = "${OAUTH2_PROVIDER}"
 
 ## <addr>:<port> to listen on for HTTP/HTTPS clients
  http_address  = "127.0.0.1:4180"
@@ -117,8 +118,8 @@ auth_logging_format     = "{{.Client}} - {{.Username}} [{{.Timestamp}}] [{{.Stat
  $EMAIL_CONFIG
 
 ## The OAuth Client ID, Secret
- client_id     = "${CLIENT_ID}"
- client_secret = "${CLIENT_SECRET}"
+ client_id     = "${OAUTH2_CLIENT_ID}"
+ client_secret = "${OAUTH2_CLIENT_SECRET}"
 
 ## Cookie Settings
  cookie_name     = "_oauth2_proxy"
@@ -139,7 +140,7 @@ cat <<EOF > "/etc/systemd/system/oauth2_proxy.service"
 Description=Oauth2 Proxy
 After=network.target
 [Service]
-ExecStart=oauth2_proxy --config=/etc/oauth2_proxy/oauth2_proxy.cfg
+ExecStart=oauth2-proxy --config=/etc/oauth2_proxy/oauth2_proxy.cfg
 Restart=on-failure
 RestartSec=5
 User=root
