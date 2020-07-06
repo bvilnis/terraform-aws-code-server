@@ -47,7 +47,6 @@ terraform apply \
 ## Requirements
 
 * [OAuth2 client ID and secret](https://oauth2-proxy.github.io/oauth2-proxy/auth-configuration) from your chosen provider.
-* Route53 hosted zone
 
 ## Inputs
 
