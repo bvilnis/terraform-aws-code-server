@@ -14,7 +14,7 @@ variable "oauth2_client_secret" {}
 // Modules
 module "code-server" {
   source  = "bvilnis/code-server/aws"
-  version = "0.1.0"
+  version = "0.1.1"
 
   domain_name          = "ide.mydomain.com"
   email_address        = "email@mydomain.com"
@@ -47,7 +47,6 @@ terraform apply \
 ## Requirements
 
 * [OAuth2 client ID and secret](https://oauth2-proxy.github.io/oauth2-proxy/auth-configuration) from your chosen provider.
-* Route53 hosted zone
 
 ## Inputs
 
