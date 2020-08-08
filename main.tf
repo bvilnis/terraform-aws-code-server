@@ -5,7 +5,7 @@ provider "aws" {
 # Locals
 locals {
   tags = {
-    Name      = var.hostname
+    Name      = "${var.github_username}-code-server"
     Terraform = true
   }
 }
