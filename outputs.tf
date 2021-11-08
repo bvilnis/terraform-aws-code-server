@@ -29,7 +29,7 @@ output "public_subnet_cidr_blocks" {
 }
 
 output "security_group_id" {
-  value       = module.security_group.this_security_group_id
+  value       = module.security_group.security_group_id
   description = "The ID of the security group"
 }
 
