@@ -61,6 +61,7 @@ terraform apply \
 | oauth2_client_secret | OAuth2 client secret key for chosen OAuth2 provider | `string` | n/a | yes |
 | oauth2_provider | OAuth2 provider | `string` | n/a | yes |
 | region | AWS regional endpoint | `string` | `"us-east-1"` | no |
+| azs | A list of availability zones names or ids in the region | `list(string)` | `["${var.region}a", "${var.region}b", "${var.region}c"]` | no |
 | route53_zone_id | Route53 hosted zone ID for `domain_name` | `string` | n/a | yes |
 | storage_size | Size (in GB) for immutable EBS volume mounted to `/home` | `number` | `20` | no |
 | username | Username for the non-root user on the EC2 instance | `string` | `"coder"` | no |
