@@ -47,6 +47,12 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "azs" {
+  type        = list(string)
+  description = "A list of availability zones names or ids in the region. default is `[\"${var.region}a\", \"${var.region}b\", \"${var.region}c\"]`"
+  default     = []
+}
+
 variable "route53_zone_id" {
   type        = string
   description = "Route53 hosted zone ID for `domain_name`"
