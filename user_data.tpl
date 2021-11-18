@@ -61,7 +61,7 @@ enable_code_server() {
 
 install_oauth2_proxy() {
   OAUTH2_PROXY_RELEASE=$(curl -s https://api.github.com/repos/oauth2-proxy/oauth2-proxy/releases/latest \
-  | jq -r ".assets[] | select(.name | test(\"linux-amd64.go\")) | .browser_download_url")
+  | jq -r ".assets[] | select(.name | test(\"linux-amd64.tar\")) | .browser_download_url")
   TARBALL=$(echo "$OAUTH2_PROXY_RELEASE" | awk -F'/' '{print $9}')
 
   wget "$OAUTH2_PROXY_RELEASE"

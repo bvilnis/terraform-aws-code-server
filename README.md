@@ -25,7 +25,7 @@ module "code-server" {
   oauth2_client_secret = var.oauth2_client_secret
   oauth2_provider      = "google"
   region               = "us-east-1"
-  route_53_zone_id     = "Z23ABC4XYZL05B"
+  route53_zone_id      = "Z23ABC4XYZL05B"
   storage_size         = 20
   username             = "coder"
 }
